@@ -1,0 +1,16 @@
+# Credenciais — nunca versionadas. O contrato do arquivo está em .env.example.
+.env
+.env.*
+!.env.example
+
+# Estado local de execução: laudos, marcas d'água, registros de custo.
+# Deliberadamente fora do versionamento (SPEC §4: o estado não é o contrato).
+.local/
+
+# Ruído de linguagem e de editor
+__pycache__/
+*.pyc
+*.log
+.venv/
+node_modules/
+.DS_Store

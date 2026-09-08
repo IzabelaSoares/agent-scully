@@ -1,0 +1,35 @@
+name: CI
+
+# Roda a suíte de testes.
+#
+# NÃO usa secret, e isso é por construção e não por sorte: todo caso roda sobre
+# tests/fixtures/, então não há credencial nem chamada de rede envolvida. É o
+# que torna o CI viável a cada PR — e o que permite a qualquer pessoa que clone
+# rodar exatamente o mesmo comando sem pedir acesso a nada.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      # shellcheck ausente FAZ A SUÍTE FALHAR, não pular (SPEC §10). Instalar
+      # aqui é o que garante que o CI verifique o mesmo que a máquina local.
+      - name: Instalar shellcheck e jq
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck jq
+
+      - name: Rodar a suíte
+        run: tests/run.sh
