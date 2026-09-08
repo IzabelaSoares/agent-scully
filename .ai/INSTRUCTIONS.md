@@ -17,9 +17,11 @@ tráfego de cliente real.
 
 ## Estado atual
 
-**Etapa 0** do [`docs/PLAN.md`](docs/PLAN.md) — contrato e rede de segurança.
-Não há coletor implementado ainda: o que existe é a especificação, a suíte e o
-CI. Qualquer afirmação de que algo "roda" precisa de teste que a sustente.
+**Etapa 1** do [`docs/PLAN.md`](docs/PLAN.md), em curso — ambiente e
+credenciais; a Etapa 0 (contrato e rede de segurança) está fechada. Não há
+coletor implementado ainda: o que existe é a especificação, a suíte, o CI e a
+biblioteca de ambiente (`.ai/tools/lib/env.sh`). Qualquer afirmação de que algo
+"roda" precisa de teste que a sustente.
 
 ## Sumário
 

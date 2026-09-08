@@ -6,11 +6,13 @@ que existe em volta dele — não só o estado.
 
 Ele alimenta quem está de plantão. Não substitui.
 
-> **Estado: Etapa 0 de 12** — contrato e rede de segurança. O que existe hoje é
-> a especificação, a suíte de testes e o CI. **Nenhum coletor está
-> implementado.** Este bloco é atualizado a cada etapa, e nenhuma afirmação de
-> estado entra aqui sem teste que a sustente — é a regra da
-> [SPEC §1](docs/SPEC.md), aplicada ao próprio README.
+> **Estado: Etapa 1 de 12, em curso** — a Etapa 0 (contrato e rede de
+> segurança) está fechada. O que existe hoje é a especificação, a suíte de
+> testes, o CI e a **biblioteca de ambiente** (`.ai/tools/lib/env.sh`, coberta
+> por `tests/casos/03-ambiente.sh`). **Nenhum coletor está implementado.** Este
+> bloco é atualizado a cada etapa, e nenhuma afirmação de estado entra aqui sem
+> teste que a sustente — é a regra da [SPEC §1](docs/SPEC.md), aplicada ao
+> próprio README.
 
 ---
 
