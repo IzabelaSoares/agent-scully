@@ -1,0 +1,43 @@
+name: Melhoria
+description: Uma proposta de mudança de comportamento ou de processo
+labels: [melhoria]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Que problema isto resolve
+      description: >
+        O problema, não a solução. Se o problema for "o laudo não mostra X",
+        diga que decisão fica pior sem X.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Proposta
+    validations:
+      required: true
+
+  - type: dropdown
+    id: natureza
+    attributes:
+      label: É regra ou calibragem?
+      description: >
+        SPEC §9.1. Calibragem é limiar e se ajusta sem cerimônia — vira PR em
+        `.ai/politicas/`. Regra não se ajusta sem decisão registrada, e a
+        proposta precisa de uma entrada em `docs/decisoes/`.
+      options:
+        - Calibragem (limiar)
+        - Regra (exige decisão registrada)
+        - Não sei
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: descartadas
+    attributes:
+      label: Antes de abrir
+      options:
+        - label: Li `docs/decisoes/` e esta ideia não está lá como descartada
+          required: true

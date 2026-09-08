@@ -1,0 +1,47 @@
+name: Bug
+description: Algo se comporta diferente do especificado
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Os três campos obrigatórios abaixo não são burocracia: são exatamente as
+        pré-condições que o veto de autonomia checa antes de o agente poder pegar
+        a correção. **Bug sem passo de reprodução e sem resultado esperado é bug
+        que nenhum agente pode pegar** — e pedir isso na entrada é mais barato
+        que descobrir na triagem.
+
+  - type: textarea
+    id: reproducao
+    attributes:
+      label: Como reproduzir
+      description: Passos numerados, do estado inicial ao erro.
+      placeholder: |
+        1. Com `.env` sem `APM_API_TOKEN`
+        2. Rodar `tests/run.sh 00-sanitizacao`
+    validations:
+      required: true
+
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Resultado esperado
+      description: O que deveria acontecer, e onde isso está especificado.
+    validations:
+      required: true
+
+  - type: textarea
+    id: obtido
+    attributes:
+      label: Resultado obtido
+      description: >
+        O que aconteceu. ⚠️ Sem credencial, sem token e sem URL de webhook —
+        cole a saída já limpa.
+    validations:
+      required: true
+
+  - type: input
+    id: referencia
+    attributes:
+      label: Seção da SPEC ou decisão relacionada
+      placeholder: "docs/SPEC.md §7, ou docs/decisoes/0003"
