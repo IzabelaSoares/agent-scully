@@ -1,0 +1,25 @@
+# Termos proibidos, como sha256(sal + ':' + termo).
+#
+# O termo NÃO aparece aqui em texto claro de propósito: uma lista literal
+# num repositório público anuncia exatamente a origem que ela protege.
+# Isto é obfuscação, não sigilo — o sal está em verificar.py e um ataque de
+# dicionário recupera termo curto em segundos. Ver README.md desta pasta.
+#
+# Nada que seja credencial entra aqui: credencial não se protege por grep,
+# se rotaciona.
+#
+# Acrescentar:  tests/sanitizacao/hash.py "termo"
+
+7b60d14f8329ce97318168cb1142464ad18875aca9b8ab20369644fcfe6e3e08
+16d417af25f7dec9e75b2e517695d7d6f73f829c89e9b4e23f31b4fa9fd03074
+669a3c20c210027a2f1f646502eb0110fda4a1c52f791f6fd2ca0455903561a0
+3742986c5acfcbdfcce2c465ab2da6d783478586eb8ebce42a4a61fca0b3d07d
+29ebc9096c03e2aa1fb43c39158dbb7db4cdb1028fde697e0f1acfedcd10dd36
+d375744908bb4960460e00c457f57aaf93f9c29f57b77fe9d0be7314195b9bed
+b68d9943e958ede193794d3717774f7f80c2425d50edc1a1097815a872b8eec8
+0f69dbbbeecf91777a9f0af4087058fbeded24062a438734b9d6b67f9da741f2
+6de5caf4641800a5aebedc219401b456225c2a5dcb49920df8f1707ce298afee
+a84c2dc5d9f7ad42aede3c8625a8bdc317aa5151ff98a30f3701a0cb54dd4d3f
+e2ad433d1368da254f3a344e1019b770472d902efb64fd04974f8bb14be3e536
+bc9964f3cb9894b077295046cb01eba724f95ba3ff8e40100dde20cb4f3591b4
+e975fee5f3c187a39054d86059b45f3ceff96ffb6d3817e7ced48783dcfe003d
