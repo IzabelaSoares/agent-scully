@@ -1,0 +1,19 @@
+# Calibragem da verificação de credenciais — ops/verificar-credenciais.sh.
+#
+# Limiar mora aqui, e não literal em script: ajustar vira diff de uma linha,
+# revisável por PR, em vez de caçada por número espalhado em shell
+# (SPEC §9.1, e a régua de CONVENTIONS.md "onde ponho um arquivo novo").
+#
+# ⚠️ O leitor é provisório e mora no próprio script: bash puro, e entende só
+# `chave: número`. O leitor de política de verdade chega junto com a política
+# de prazo (TASKS C1), quando houver um segundo consumidor para justificá-lo.
+# Escrever o genérico agora seria adivinhar a forma do arquivo da Etapa 2.
+
+# Quanto se espera por cada chamada de verificação, em segundos.
+#
+# Por que 10: a chamada é a mais barata de cada API — "quem sou eu", "que
+# projeto é este" — e o que se mede é se a credencial vale, não a latência do
+# serviço. Fonte que demora mais que isso para dizer quem somos tem problema, e
+# problema de fonte é assunto do laudo (como indisponível), não desta
+# verificação.
+tempo_limite_segundos: 10
