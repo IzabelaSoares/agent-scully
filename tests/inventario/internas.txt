@@ -1,0 +1,55 @@
+# Variáveis que um script pode ler SEM estar no `.env.example`, e por quê.
+#
+# Formato: <nome ou prefixo terminado em *><TAB><por que não é contrato de ambiente>
+# Linha vazia e linha iniciada por # são ignoradas.
+#
+# ⚠️ A lista é FECHADA de propósito. Tudo o que um script lê e não está aqui
+# tem que estar documentado no `.env.example` — variável nova nasce documentada
+# ou quebra o CI. Uma lista de inclusão ("confira só o que começa com tal
+# prefixo") falharia aberto: a variável nova de prefixo novo passaria em
+# silêncio, que é exatamente o modo de falha que este verificador existe para
+# fechar.
+#
+# Entrada nova aqui é uma afirmação: "isto não é configuração de ninguém".
+# Estando errada, o preço é uma variável que quem clona precisa preencher e
+# não sabe que precisa.
+
+# --- Da própria suíte ------------------------------------------------------
+RAIZ	exportada por tests/run.sh: a raiz do repositório, descoberta e não configurada
+FIXTURES	exportada por tests/run.sh: o diretório dos dublês, derivado de RAIZ
+SCULLY_T_*	dublê de teste: existe só dentro da suíte e nunca num .env de verdade
+
+# --- Do shell e do sistema operacional -------------------------------------
+# Quem as define é o sistema, não quem clona o repositório.
+HOME	definida pelo sistema
+PATH	definida pelo sistema
+PWD	definida pelo shell
+OLDPWD	definida pelo shell
+IFS	definida pelo shell
+TMPDIR	definida pelo sistema
+TERM	definida pelo terminal
+LANG	definida pelo sistema
+LC_*	definida pelo sistema
+USER	definida pelo sistema
+SHELL	definida pelo sistema
+EDITOR	preferência da pessoa, não do projeto
+BASH_SOURCE	interna do bash
+BASH_VERSION	interna do bash
+BASH_REMATCH	interna do bash
+FUNCNAME	interna do bash
+PIPESTATUS	interna do bash
+LINENO	interna do bash
+RANDOM	interna do bash
+SECONDS	interna do bash
+OSTYPE	interna do bash
+HOSTNAME	interna do bash
+UID	interna do bash
+EUID	interna do bash
+PS4	interna do bash
+REPLY	interna do bash
+
+# --- Do runner de CI -------------------------------------------------------
+# Contrato do runner, não deste repositório: ninguém as preenche à mão.
+CI	convenção universal de runner
+GITHUB_*	injetada pelo GitHub Actions
+RUNNER_*	injetada pelo GitHub Actions

@@ -71,3 +71,10 @@ o CI — ver
 Credencial não entra nem como exemplo plausível. `.env.example` documenta o
 **contrato** da variável — o que é, em que conta, quem emite, qual escopo, qual
 validade — e nunca um valor que pareça real.
+
+Isso também é teste, não etiqueta: `tests/casos/04-inventario.sh` falha quando um
+script lê variável que o exemplo não documenta, quando uma seção deixa de trazer
+as cinco informações, e quando uma variável de nome de segredo aparece
+preenchida. Variável interna à execução, que ninguém preenche à mão, vai para
+`tests/inventario/internas.txt` **com o motivo ao lado** — a lista é fechada de
+propósito.
