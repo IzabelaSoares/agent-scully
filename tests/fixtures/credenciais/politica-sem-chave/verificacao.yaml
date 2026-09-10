@@ -1,0 +1,7 @@
+# Dublê de política torta: o arquivo existe e não traz o tempo-limite.
+#
+# É o caso que separa "arquivo ausente" de "arquivo presente e incompleto". Os
+# dois têm que falhar declarando o que falta — política que se lê pela metade e
+# segue com um default silencioso é o literal em script de volta pela porta dos
+# fundos.
+outra_chave: 3

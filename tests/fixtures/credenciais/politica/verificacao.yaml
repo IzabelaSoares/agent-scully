@@ -1,0 +1,4 @@
+# Dublê de política. O valor é 7 — diferente do 10 da política de verdade — de
+# propósito: é assim que o caso prova que o script LÊ o arquivo, em vez de
+# carregar um literal que por acaso coincide.
+tempo_limite_segundos: 7

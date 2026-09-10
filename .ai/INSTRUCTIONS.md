@@ -19,9 +19,10 @@ tráfego de cliente real.
 
 **Etapa 1** do [`docs/PLAN.md`](docs/PLAN.md), em curso — ambiente e
 credenciais; a Etapa 0 (contrato e rede de segurança) está fechada. Não há
-coletor implementado ainda: o que existe é a especificação, a suíte, o CI e a
-biblioteca de ambiente (`.ai/tools/lib/env.sh`). Qualquer afirmação de que algo
-"roda" precisa de teste que a sustente.
+coletor implementado ainda: o que existe é a especificação, a suíte, o CI, a
+biblioteca de ambiente (`.ai/tools/lib/env.sh`) e a verificação de credenciais
+(`ops/verificar-credenciais.sh`). Qualquer afirmação de que algo "roda" precisa
+de teste que a sustente.
 
 ## Sumário
 
