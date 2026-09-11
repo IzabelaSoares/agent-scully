@@ -1,0 +1,21 @@
+# Dublê: política estruturalmente boa, com um valor sem razão ao lado.
+#
+# `padrao` é justamente o valor que ninguém sabe ajustar sem a razão: escolher
+# a origem errada por omissão é como se reporta "no prazo" com a promessa já
+# vencida.
+
+versao: 1  # formato, não conteúdo
+origem:
+  campo: "Campo que diz a origem"  # o que decide a lista
+  padrao: unica
+  valores:
+    Qualquer: unica  # tudo cai na mesma
+origens:
+  unica:
+    campos:
+      - "Campo de prazo do dublê"  # o único
+    fallback: idade_desde_criacao  # declarado abaixo
+modos_de_fallback:
+  idade_desde_criacao: "idade, não prazo"  # o que vale sem campo preenchido
+corroboracao:
+  campo: "Campo numérico de corroboração"  # corrobora, não decide

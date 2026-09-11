@@ -1,0 +1,19 @@
+# Dublê: fora do subconjunto declarado — coleção em linha.
+#
+# O leitor tem que recusar com o número da linha. Ler isto pela metade
+# devolveria lista vazia, e lista vazia aqui é a fila inteira invisível.
+
+versao: 1  # formato, não conteúdo
+origem:
+  campo: "Campo que diz a origem"  # o que decide a lista
+  padrao: unica  # só há uma origem neste dublê
+  valores:
+    Qualquer: unica  # tudo cai na mesma
+origens:
+  unica:
+    campos: ["Campo de prazo do dublê"]  # coleção em linha: fora do subconjunto
+    fallback: idade_desde_criacao  # declarado abaixo
+modos_de_fallback:
+  idade_desde_criacao: "idade, não prazo"  # o que vale sem campo preenchido
+corroboracao:
+  campo: "Campo numérico de corroboração"  # corrobora, não decide

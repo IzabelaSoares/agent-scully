@@ -1,0 +1,109 @@
+# Política de prazo do radar do board (TASKS C1, decisões 0003).
+#
+# Qual campo de prazo vale, em que precedência, e o que vale quando nenhum
+# deles está preenchido — **por origem do bug**, porque a resposta muda com
+# ela.
+#
+# ⚠️ Isto é DADO, e é a única fonte: nenhum nome de campo de prazo aparece
+# literal em script, e `tests/casos/07-prazo.sh` falha no dia em que aparecer.
+# A tabela de `.ai/docs/prazo.md` é gerada daqui, e o mesmo caso falha quando
+# as duas divergem — é a rede que a decisão 0003 pede, e ela existe porque o
+# mesmo valor em dois lugares diverge em semanas.
+#
+# Os campos são os do board do alvo de demonstração (docs/ALVO.md). Nada aqui
+# descreve board de terceiro, e o id numérico do campo **não entra neste
+# repositório**: o coletor resolve nome → id contra o próprio board, em
+# execução — id de campo customizado identifica a instância de quem o tem.
+#
+# Formato: subconjunto restrito de YAML — mapa aninhado, lista de escalares e
+# comentário, e nada mais. Sem âncora, sem coleção em linha, sem escalar de
+# várias linhas. O leitor recusa o que estiver fora disso em vez de adivinhar:
+# `.yaml` mal escrito tem que falhar como falha, nunca como lista vazia.
+#
+# Toda linha de valor traz a razão ao lado ou imediatamente acima, e isso
+# também é verificado — valor sem razão é valor que a próxima pessoa não sabe
+# ajustar, e que por isso fica errado por inércia.
+#
+# O que **não** está aqui ainda: a janela do 🟡 e o corte do 🔴, que são
+# calibragem da classificação e chegam com o radar (TASKS C2). Ausência aqui é
+# etapa não começada, não lacuna esquecida.
+
+# Versão do FORMATO, não do conteúdo: ela muda quando a forma muda, e é o que
+# permite ao leitor recusar um arquivo que ele não entende em vez de ler pela
+# metade.
+versao: 1
+
+# ─── Como se descobre a origem do bug ───────────────────────────────────────
+
+origem:
+  # O campo que diz por onde o bug chegou. É ele que escolhe qual lista de
+  # precedência vale, então mora aqui e não num `if` do coletor.
+  campo: "Origem do bug"
+
+  # Campo vazio é comum, e vazio o palpite barato é `cliente`: a lista de
+  # `cliente` apenas tenta um campo a mais, e esse campo só está preenchido
+  # quando existe promessa externa. O palpite caro é o inverso — reportar "no
+  # prazo" com a promessa ao cliente já vencida (decisões 0003).
+  padrao: cliente
+
+  valores:
+    # Chegou de quem usa o serviço, direto ou pelo helpdesk: há promessa
+    # externa, e é ela que manda.
+    Cliente: cliente
+    Suporte: cliente  # mesma promessa, só que chegou pelo helpdesk
+    # Nasceu dentro — alerta do APM, revisão de trace, trabalho de quem
+    # desenvolve. Não há promessa externa a honrar.
+    Monitoramento: interno
+    Engenharia: interno  # mesma razão: ninguém de fora está esperando
+
+# ─── A precedência, por origem ──────────────────────────────────────────────
+# Vale o primeiro campo da lista que estiver preenchido. Lista vazia é recusada
+# pelo leitor: ela deixaria a fila inteira invisível, e em silêncio.
+
+origens:
+  cliente:
+    campos:
+      # A data acordada com quem reportou. É o campo legado — valeu até a
+      # migração de board —, e vem primeiro porque, onde está preenchido, é o
+      # único que carrega a promessa: a migração não o reescreveu.
+      - "Prazo do cliente"
+      # O campo atual, preenchido desde a migração. É o que existe na maior
+      # parte da fila, e é por isso que é o segundo, e não o último.
+      - "Data limite"
+      # Último recurso, e ainda assim é prazo declarado por alguém — melhor
+      # que cair no fallback, que é estimativa desta casa.
+      - "Prazo interno"
+    # Nenhum dos três preenchido: o bug entra pela idade. Some do radar, nunca.
+    fallback: idade_desde_criacao
+
+  interno:
+    campos:
+      # O mesmo campo atual, pela mesma razão.
+      - "Data limite"
+      # Para bug nascido dentro, é o prazo que o time se deu — e costuma ser o
+      # único preenchido.
+      - "Prazo interno"
+    # "Prazo do cliente" está fora desta lista de propósito: bug interno não
+    # tem promessa externa, e valor preenchido ali é resíduo de triagem.
+    # Usá-lo reportaria ao time um prazo que ninguém prometeu a ninguém.
+    fallback: idade_desde_criacao
+
+# ─── O que vale sem nenhum campo preenchido ─────────────────────────────────
+# O fallback existe porque a alternativa é o bug sumir do radar. Sem ele, a
+# parte mais antiga da fila fica invisível — justamente a que só tem o campo
+# legado (decisões 0003).
+
+modos_de_fallback:
+  # Conta a partir da criação da issue. **Não é prazo, é idade**, e o laudo tem
+  # de dizer isso na letra: apresentar estimativa desta casa como promessa é
+  # como um painel perde crédito, e perde de uma vez.
+  idade_desde_criacao: "dias desde a criação da issue, declarados como idade e nunca como prazo"
+
+# ─── Corroboração ───────────────────────────────────────────────────────────
+
+corroboracao:
+  # Numérico derivado pelo board a partir do campo de prazo. Ele **corrobora e
+  # nunca decide**: o board o recalcula na própria cadência, então ele diverge
+  # da data por horas — e um radar que decidisse por ele reportaria "estourado"
+  # num bug que vence hoje à tarde.
+  campo: "Dias para o vencimento"

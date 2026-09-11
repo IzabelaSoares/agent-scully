@@ -1,0 +1,20 @@
+# Dublê: política boa, e a documentação ao lado desatualizada.
+#
+# É o par que a decisão 0003 manda pegar por teste: o mesmo valor em dois
+# lugares diverge em semanas, e quem lê a documentação passa a ler ficção.
+
+versao: 1  # formato, não conteúdo
+origem:
+  campo: "Campo que diz a origem"  # o que decide a lista
+  padrao: unica  # só há uma origem neste dublê
+  valores:
+    Qualquer: unica  # tudo cai na mesma
+origens:
+  unica:
+    campos:
+      - "Campo de prazo do dublê"  # o único
+    fallback: idade_desde_criacao  # declarado abaixo
+modos_de_fallback:
+  idade_desde_criacao: "idade, não prazo"  # o que vale sem campo preenchido
+corroboracao:
+  campo: "Campo numérico de corroboração"  # corrobora, não decide

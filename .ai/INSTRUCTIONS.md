@@ -20,9 +20,11 @@ tráfego de cliente real.
 **Etapa 1** do [`docs/PLAN.md`](docs/PLAN.md), em curso — ambiente e
 credenciais; a Etapa 0 (contrato e rede de segurança) está fechada. Não há
 coletor implementado ainda: o que existe é a especificação, a suíte, o CI, a
-biblioteca de ambiente (`.ai/tools/lib/env.sh`) e a verificação de credenciais
-(`ops/verificar-credenciais.sh`). Qualquer afirmação de que algo "roda" precisa
-de teste que a sustente.
+biblioteca de ambiente (`.ai/tools/lib/env.sh`), a verificação de credenciais
+(`ops/verificar-credenciais.sh`) e a **política de prazo**
+(`.ai/politicas/prazo.yaml`) — que é dado verificado, e não código que roda:
+o radar que a lê é a task C2. Qualquer afirmação de que algo "roda" precisa de
+teste que a sustente.
 
 ## Sumário
 
@@ -42,6 +44,7 @@ de teste que a sustente.
 | Documento | Quando ler |
 |---|---|
 | [`docs/permissoes.md`](.ai/docs/permissoes.md) | A amarração das três camadas: qual restrição é imposta onde, e o que ainda é plano em vez de garantia. **Leia antes de mexer em `.claude/settings.json` ou em `.ai/tools/acoes/`.** |
+| [`docs/prazo.md`](.ai/docs/prazo.md) | Como o radar escolhe o prazo: a precedência por origem do bug e o fallback. **Leia antes de tocar em `.ai/politicas/prazo.yaml` — e nunca escreva nome de campo de prazo em script.** |
 
 **Meta** — [`CONVENTIONS.md`](.ai/CONVENTIONS.md): como este `.ai/` é
 organizado, e onde vai cada arquivo novo.

@@ -1,0 +1,19 @@
+# Dublê: origem sem nenhum campo de prazo declarado.
+#
+# É o modo de falha que a decisão 0003 chama pelo nome: sem lista, a fila
+# inteira fica invisível — e invisível em silêncio, que é o pior jeito.
+
+versao: 1  # formato, não conteúdo
+origem:
+  campo: "Campo que diz a origem"  # o que decide a lista
+  padrao: unica  # só há uma origem neste dublê
+  valores:
+    Qualquer: unica  # tudo cai na mesma
+origens:
+  unica:
+    campos:
+    fallback: idade_desde_criacao  # declarado abaixo
+modos_de_fallback:
+  idade_desde_criacao: "idade, não prazo"  # o que vale sem campo preenchido
+corroboracao:
+  campo: "Campo numérico de corroboração"  # corrobora, não decide
