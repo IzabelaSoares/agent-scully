@@ -12,7 +12,10 @@ Ele alimenta quem está de plantão. Não substitui.
 > por `tests/casos/03-ambiente.sh`) e a **verificação de credenciais**
 > (`ops/verificar-credenciais.sh`, coberta por `tests/casos/05-credenciais.sh`)
 > — que confere o que dá para conferir e reporta como lacuna, com o motivo, o
-> que ainda não dá. **Nenhum coletor está implementado.** Este
+> que ainda não dá. O caminho do clone até aí está em
+> [`PRIMEIRO-DIA.md`](PRIMEIRO-DIA.md), e
+> `tests/casos/06-primeiro-dia.sh` falha quando ele deixa de bater com o
+> repositório. **Nenhum coletor está implementado.** Este
 > bloco é atualizado a cada etapa, e nenhuma afirmação de estado entra aqui sem
 > teste que a sustente — é a regra da [SPEC §1](docs/SPEC.md), aplicada ao
 > próprio README.
@@ -136,6 +139,7 @@ e não do bash —
 
 | Documento | O que responde |
 |---|---|
+| [`PRIMEIRO-DIA.md`](PRIMEIRO-DIA.md) | do clone ao ponto mais distante que o repositório alcança hoje, com a prova de cada passo |
 | [`docs/SPEC.md`](docs/SPEC.md) | o que o agente é, o que garante e o que não faz |
 | [`docs/PLAN.md`](docs/PLAN.md) | o que se constrói, em que ordem e **por quê** |
 | [`docs/TASKS.md`](docs/TASKS.md) | as tasks da etapa em curso, com critério de pronto |
@@ -157,6 +161,10 @@ tests/run.sh 00-sanitizacao             # um caso só
 
 É a mesma invocação que o CI faz. Não há caminho alternativo, e não há secret
 envolvido — por construção, e não por sorte.
+
+Chegando agora, o caminho inteiro — com a prova de cada passo, inclusive a de
+**ver a rede de sanitização falhar de propósito** — está em
+[`PRIMEIRO-DIA.md`](PRIMEIRO-DIA.md).
 
 ## Licença
 
