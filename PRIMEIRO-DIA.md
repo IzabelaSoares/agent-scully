@@ -1,13 +1,13 @@
 # First day — Agent Scully
 
-Do clone ao ponto mais distante que este repositório alcança **hoje**, em sete
+Do clone ao ponto mais distante que este repositório alcança **hoje**, em oito
 passos. Cada passo termina numa **prova**: um comando cuja saída você confere, e
 não uma afirmação para acreditar. É a mesma exigência que o agente tem de
 cumprir no laudo ([`docs/SPEC.md`](docs/SPEC.md) §1), aplicada a quem chega.
 
-> ⚠️ **Onde a trilha para.** Ela vai do clone até a **verificação de
-> credenciais**. **Nenhum coletor está implementado** — não há ronda nem laudo
-> ainda, e este arquivo não vai fingir que há. O que falta, e em que etapa
+> ⚠️ **Onde a trilha para.** Ela vai do clone até o **primeiro coletor**: o radar
+> de prazo, rodando sobre uma amostra versionada. **Não há ronda nem laudo
+> ainda**, e este arquivo não vai fingir que há. O que falta, e em que etapa
 > chega, está em [Onde a trilha para hoje](#onde-a-trilha-para-hoje).
 
 ## Antes de começar
@@ -16,7 +16,7 @@ cumprir no laudo ([`docs/SPEC.md`](docs/SPEC.md) §1), aplicada a quem chega.
 |---|---|---|
 | `git`, `bash`, `python3` | a suíte de testes | nada roda |
 | `shellcheck` | verificação estática de todo shell | **a suíte falha** — não pula |
-| `jq` | leitura de JSON, dos coletores em diante | nada hoje; instale junto |
+| `jq` | leitura de JSON, no radar de prazo (Passo 8) | ele sai ≠ 0 dizendo que nada foi coletado |
 | `curl` | a verificação de credenciais | ela sai ≠ 0 dizendo que nada foi verificado |
 
 As duas linhas de "falha" acima não são aspereza gratuita. **Verificação que se
@@ -187,20 +187,66 @@ em que chega**: o webhook do Slack só se confere postando, e postar é do wrapp
 da Etapa 3; o APM e o helpdesk ainda não têm fornecedor escolhido (Etapas 6 e
 8). Lacuna anunciada não é falha, e nenhuma das duas vira zero.
 
+## Passo 8 — O radar de prazo, sobre uma amostra versionada
+
+O primeiro coletor. Ele responde uma pergunta só — **que bug está com o prazo
+estourado, e qual está para estourar?** — e responde sobre uma amostra
+versionada, sem credencial e sem rede:
+
+```bash
+SCULLY_AGORA=2026-09-14 \
+  .ai/tools/coleta/board-radar.sh --amostra tests/fixtures/board/amostra.json
+```
+
+**Prova:** sai um JSON com `"referencia": "2026-09-14"`, dois itens 🔴, três 🟡 e
+`"sob_controle": 2` — sete bugs julgados, nenhum perdido pelo caminho. Rode de
+novo trocando a data para `2026-09-01`: **a classificação muda**, porque a data
+de referência é injetada e não lida do relógio. É isso que torna a classificação
+testável; sem a variável, o mesmo comando daria outra resposta amanhã e não
+haveria como conferir nada.
+
+Nada do que decidiu essa saída está escrito no script. Qual campo de prazo vale,
+em que ordem, o que vale sem nenhum preenchido e os cortes do 🔴 e do 🟡 saem de
+[`.ai/politicas/prazo.yaml`](.ai/politicas/prazo.yaml) — e
+`tests/casos/07-prazo.sh` falha no dia em que qualquer um deles virar literal em
+script. A leitura é em [`.ai/docs/prazo.md`](.ai/docs/prazo.md).
+
+Duas coisas que a saída faz de propósito, e que valem reparar:
+
+- **Bug sem prazo declarado não some do radar**: ele entra pela **idade**, em
+  campo próprio, e **nunca** como 🔴 — idade é estimativa desta casa, e
+  apresentá-la como promessa é como um painel perde crédito.
+- **O que está sob controle vira contagem, não silêncio.** É o número que deixa
+  o laudo *afirmar* "prazos sob controle" em vez de deixar a seção vazia; seção
+  vazia é indistinguível de coleta que não aconteceu
+  ([`docs/SPEC.md`](docs/SPEC.md) §7).
+
+Sem `--amostra`, o radar consulta o board — e, sem credencial, **sai ≠ 0 dizendo
+o que falta**, em vez de devolver fila vazia:
+
+```bash
+SCULLY_SEM_ENV=1 .ai/tools/coleta/board-radar.sh; echo "status: $?"
+```
+
+**Prova:** a mensagem nomeia as variáveis que faltam e o status é `1`. Fonte não
+configurada não é fila vazia, e transformá-la em `[]` é a falha silenciosa que a
+regra número um do projeto proíbe.
+
 ## Onde a trilha para hoje
 
-Aqui. **Nenhum coletor está implementado** — `.ai/tools/coleta/` está vazio de
-propósito, e diretório vazio neste repositório é etapa não começada, não lacuna
-esquecida.
+Aqui. Há **um** coletor, e ele ainda não falou com board nenhum: o board do alvo
+nasce na Etapa 5, então o caminho de rede do radar está escrito e **não foi
+exercitado**. O que a suíte exercita é a normalização e a classificação, sobre
+amostra — e é só isso que este arquivo afirma.
 
-O que existe é o que os sete passos acima exercitaram: a especificação, a suíte,
-o CI, a biblioteca de ambiente e a verificação de credenciais. O que falta para
-uma ronda de verdade, na ordem em que chega
+O que existe é o que os oito passos acima exercitaram: a especificação, a suíte,
+o CI, a biblioteca de ambiente, a verificação de credenciais, a política de prazo
+e o radar que a lê. O que falta para uma ronda de verdade, na ordem em que chega
 ([`docs/PLAN.md`](docs/PLAN.md)):
 
 | Etapa | O que ela destrava | Este arquivo ganha |
 |---|---|---|
-| 2 | radar de prazo no board, com a política de prazo declarativa | o primeiro comando que devolve dado de verdade |
+| 2 (resto) | conferência do número à mão, retentativa e o estado de fonte caída | a prova de que o radar acerta, e o que ele faz quando o board cai |
 | 3 | o laudo: template, golden file, contrato, postagem no Slack | o primeiro laudo, e a conferência dele |
 | 4 | a ronda mora no GitHub Actions: cron e disparo manual | como agendar, e como disparar à mão |
 
@@ -220,6 +266,8 @@ dependência real, não preferência).
 | `❌ .env tem linha malformada` | o número da linha está na saída — o conteúdo não, de propósito |
 | `❌` em tudo, com "não resolveu o host" | rede ou proxy, não credencial |
 | `🚧` em fonte que você preencheu | ela ainda não foi integrada; o motivo na própria linha diz em que etapa chega |
+| `board-radar: jq não está instalado` | mesma regra do `shellcheck`: nada foi coletado, e o script diz isso em vez de devolver lista vazia |
+| `board-radar: sem credencial do board` | esperado sem `.env` preenchido; rode com `--amostra` para ver o radar trabalhar |
 
 ## Depois do primeiro dia
 
@@ -228,7 +276,8 @@ pull request — inclusive a única que não tem exceção: **merge é humano**,
 **CI verde é pré-condição, não autorização**.
 
 Este arquivo cresce a cada etapa, e não por boa vontade:
-`tests/casos/06-primeiro-dia.sh` confere que todo caminho citado aqui existe,
-que o código de saída prometido no Passo 5 é o que o script devolve, e que a
-frase "nenhum coletor está implementado" cai no dia em que o primeiro coletor
-entrar.
+`tests/casos/06-primeiro-dia.sh` confere que todo caminho citado aqui existe, que
+todo passo termina numa prova, e que o código de saída prometido no Passo 5 é o
+que o script devolve. A catraca que obrigou o Passo 8 a existir era uma dessas
+asserções: a frase "nenhum coletor está implementado" derrubava o caso no dia em
+que o primeiro coletor entrasse — e derrubou.

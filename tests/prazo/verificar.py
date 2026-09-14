@@ -19,6 +19,11 @@ Quatro verificações, e cada uma existe por um modo de falha conhecido:
      `.ai/docs/prazo.md` é a que sai deste arquivo. As duas metades da mesma
      regra: a política é a única fonte, e o resto é gerado ou proibido.
 
+⚠️ **O leitor do `.yaml` não mora aqui**: mora em `.ai/tools/lib/politica.py`, e
+é o mesmo que o radar usa. Dois leitores deixariam este verificador aceitar um
+arquivo que o coletor lê de outro jeito — a divergência apareceria como número
+errado no laudo, sem nada falhando.
+
 Uso:
   tests/prazo/verificar.py                          (a partir da raiz)
   tests/prazo/verificar.py --politica A --doc B --script C
@@ -30,13 +35,16 @@ Status 0 se tudo passa; 1 se alguma verificação falha.
 from __future__ import annotations
 
 import argparse
-import re
 import subprocess
 import sys
 from pathlib import Path
 
 AQUI = Path(__file__).resolve().parent
 RAIZ = AQUI.parent.parent
+
+# O leitor da política é o do radar — um só (ver o cabeçalho).
+sys.path.insert(0, str(RAIZ / ".ai" / "tools" / "lib"))
+from politica import ErroDePolitica, Valor, ler_politica  # noqa: E402
 
 # Os dublês são políticas quebradas de propósito — é como o caso prova que este
 # verificador sabe falhar. Varrê-los junto com o resto faria o canário derrubar
@@ -45,9 +53,6 @@ EXCLUIDOS = ("tests/fixtures/",)
 
 MARCADOR_INICIO = "<!-- tabela gerada de .ai/politicas/prazo.yaml — não edite à mão -->"
 MARCADOR_FIM = "<!-- fim da tabela gerada -->"
-
-CHAVE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)\s*:(.*)$")
-ITEM = re.compile(r"^-\s+(.*)$")
 
 ok = 0
 falhas = 0
@@ -61,144 +66,6 @@ def afirmar(condicao: bool, mensagem: str) -> None:
     else:
         falhas += 1
         print(f"✗ {mensagem}")
-
-
-class ErroDePolitica(Exception):
-    def __init__(self, numero: int, motivo: str) -> None:
-        super().__init__(f"linha {numero}: {motivo}")
-        self.numero = numero
-        self.motivo = motivo
-
-
-class Abertura:
-    """Bloco recém-aberto: vira mapa ou lista na primeira linha de dentro.
-
-    Quem diz se `campos:` é lista ou mapa é a linha seguinte, e não a chave —
-    por isso o recipiente nasce indefinido e só então se materializa.
-    """
-
-    def __init__(self, pai: dict, nome: str) -> None:
-        self.pai = pai
-        self.nome = nome
-
-
-class Valor:
-    """Um escalar do arquivo, com onde ele está e se tem razão ao lado."""
-
-    def __init__(self, texto: str, numero: int, com_razao: bool) -> None:
-        self.texto = texto
-        self.numero = numero
-        self.com_razao = com_razao
-
-    def __repr__(self) -> str:  # pragma: no cover — só ajuda em depuração
-        return f"Valor({self.texto!r}, linha={self.numero})"
-
-
-def _escalar(bruto: str, numero: int) -> tuple[str, bool]:
-    """Devolve (valor, tem comentário ao lado). Recusa o que sai do subconjunto."""
-    bruto = bruto.strip()
-    if bruto.startswith(("[", "{")):
-        raise ErroDePolitica(numero, "coleção em linha — use lista de bloco")
-    if bruto.startswith(("&", "*")):
-        raise ErroDePolitica(numero, "âncora ou alias — fora do subconjunto")
-    if bruto.startswith(("|", ">")):
-        raise ErroDePolitica(numero, "escalar de várias linhas — fora do subconjunto")
-    if bruto.startswith("'"):
-        raise ErroDePolitica(numero, "aspas simples — use aspas duplas")
-
-    if bruto.startswith('"'):
-        fim = bruto.find('"', 1)
-        if fim < 0:
-            raise ErroDePolitica(numero, "aspas duplas não fechadas")
-        valor = bruto[1:fim]
-        resto = bruto[fim + 1 :].strip()
-        if resto and not resto.startswith("#"):
-            raise ErroDePolitica(numero, "texto depois do valor entre aspas")
-        return valor, resto.startswith("#")
-
-    corte = bruto.find(" #")
-    if corte >= 0:
-        return bruto[:corte].strip(), True
-    return bruto, False
-
-
-def ler_politica(caminho: Path) -> tuple[dict, list[Valor]]:
-    """Lê o subconjunto restrito: mapa aninhado, lista de escalares, comentário."""
-    raiz: dict = {}
-    valores: list[Valor] = []
-    # (indentação, recipiente) — o topo da pilha é onde a próxima linha entra.
-    pilha: list[tuple[int, object]] = [(-1, raiz)]
-    comentario_acima = False
-
-    for numero, linha in enumerate(caminho.read_text(encoding="utf-8").splitlines(), 1):
-        if "\t" in linha:
-            raise ErroDePolitica(numero, "tabulação — a indentação é de dois espaços")
-        if not linha.strip():
-            comentario_acima = False
-            continue
-        if linha.lstrip().startswith("#"):
-            comentario_acima = True
-            continue
-
-        indentacao = len(linha) - len(linha.lstrip(" "))
-        if indentacao % 2:
-            raise ErroDePolitica(numero, "indentação ímpar — são dois espaços por nível")
-
-        while len(pilha) > 1 and indentacao <= pilha[-1][0]:
-            pilha.pop()
-        conteudo = linha.strip()
-
-        item = ITEM.match(conteudo)
-        recipiente = _materializar(pilha, list if item else dict)
-
-        if item:
-            if not isinstance(recipiente, list):
-                raise ErroDePolitica(numero, "item de lista fora de uma lista")
-            texto, ao_lado = _escalar(item.group(1), numero)
-            if not texto:
-                raise ErroDePolitica(numero, "item de lista sem valor")
-            valor = Valor(texto, numero, ao_lado or comentario_acima)
-            recipiente.append(valor)
-            valores.append(valor)
-            comentario_acima = False
-            continue
-
-        chave = CHAVE.match(conteudo)
-        if not chave:
-            raise ErroDePolitica(numero, "nem chave nem item de lista")
-        if not isinstance(recipiente, dict):
-            raise ErroDePolitica(numero, "chave dentro de uma lista")
-
-        nome, bruto = chave.group(1), chave.group(2)
-        if nome in recipiente:
-            raise ErroDePolitica(numero, f"chave repetida: {nome}")
-
-        texto, ao_lado = _escalar(bruto, numero)
-        if texto:
-            valor = Valor(texto, numero, ao_lado or comentario_acima)
-            recipiente[nome] = valor
-            valores.append(valor)
-            comentario_acima = False
-            continue
-
-        # Chave sem valor abre um bloco. Se ele é mapa ou lista, quem diz é a
-        # primeira linha de dentro — por isso o recipiente nasce indefinido.
-        recipiente[nome] = None
-        pilha.append((indentacao, Abertura(recipiente, nome)))
-        comentario_acima = False
-
-    return raiz, valores
-
-
-def _materializar(pilha: list, como: type) -> object:
-    """Troca a `Abertura` do topo pelo recipiente que a primeira linha revelou."""
-    indentacao, recipiente = pilha[-1]
-    if isinstance(recipiente, Abertura):
-        concreto = como()
-        recipiente.pai[recipiente.nome] = concreto
-        pilha[-1] = (indentacao, concreto)
-        return concreto
-    return recipiente
 
 
 def caminho_relativo(caminho: Path) -> str:
@@ -258,6 +125,18 @@ def tabela(dados: dict) -> str:
         linhas.append(f"Fallback `{rotulo}`: {texto(descricao)}.")
     linhas.append(
         f"Corrobora, e nunca decide: `{texto(corroboracao.get('campo'))}`."
+    )
+
+    classificacao = dados.get("classificacao") or {}
+    linhas.append("")
+    linhas.append(
+        "Classificação — 🔴 prazo vencido na data de referência; 🟡 vence em até "
+        f"{texto(classificacao.get('janela_amarelo_dias'))} dia(s); 🟢 o resto."
+    )
+    linhas.append(
+        "Sem prazo declarado, entra pela idade: 🟡 a partir de "
+        f"{texto(classificacao.get('idade_amarelo_dias'))} dia(s) de vida, e "
+        "**nunca** 🔴 — idade é estimativa desta casa, não promessa a estourar."
     )
     return "\n".join(linhas)
 
@@ -360,6 +239,22 @@ def main() -> int:
         isinstance(rotulos, dict) and len(rotulos) > 0 and not desconhecidos,
         "todo valor do campo de origem cai numa origem declarada"
         + (f" — {', '.join(desconhecidos)}" if desconhecidos else ""),
+    )
+
+    # Limiar ausente aqui é limiar que volta para dentro do radar como literal —
+    # que é justamente o que a SPEC §9.1 tira de lá. Por isso a falta é recusa, e
+    # não default silencioso (mesma regra de ops/verificar-credenciais.sh).
+    classificacao = dados.get("classificacao")
+    exigidos = ("janela_amarelo_dias", "idade_amarelo_dias")
+    ausentes_ou_torto = [
+        chave
+        for chave in exigidos
+        if not texto((classificacao or {}).get(chave)).isdigit()
+    ]
+    afirmar(
+        isinstance(classificacao, dict) and not ausentes_ou_torto,
+        "a política declara os limiares da classificação, em dias inteiros"
+        + (f" — falta ou não é número: {', '.join(ausentes_ou_torto)}" if ausentes_ou_torto else ""),
     )
 
     # O numérico de corroboração decidindo é o defeito que reporta "estourado"
