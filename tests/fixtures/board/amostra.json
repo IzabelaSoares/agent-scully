@@ -1,0 +1,114 @@
+{
+  "_comentario": [
+    "Amostra do board do alvo de demonstração (docs/ALVO.md), na forma que a",
+    "consulta do radar devolve: `issues`, e `names` mapeando id de campo → nome.",
+    "É sobre ela que tests/casos/08-radar-prazo.sh confere cada número, e é ela",
+    "que a task C3 confere à mão.",
+    "",
+    "⚠️ Os ids de campo são OPACOS de propósito — `campo_atual`, e nunca o id",
+    "numérico que um board de verdade usa. Id de campo customizado identifica a",
+    "instância de quem o tem, e é uma das classes que tests/casos/00-sanitizacao.sh",
+    "barra (decisões 0002). Quem casa política e campo é o nome, via `names`.",
+    "",
+    "As sete issues são sete casos, e cada uma existe por um deles:",
+    "  MRD-101  precedência: o campo legado ganha do atual, e o numérico de",
+    "           corroboração, que aponta o contrário, NÃO decide",
+    "  MRD-102  origem interna com o campo legado preenchido por resíduo de",
+    "           triagem — a lista de `interno` o exclui, e tem de excluir",
+    "  MRD-103  origem vazia cai no padrão; e vence HOJE, que é 🟡 e não 🔴",
+    "  MRD-104  nenhum campo preenchido: entra pela idade, e nunca como 🔴",
+    "  MRD-105  prazo distante: 🟢, fora da lista e dentro da contagem",
+    "  MRD-106  jovem e sem prazo: 🟢 pela idade abaixo do corte",
+    "  MRD-107  rótulo de origem que a política não conhece — cai no padrão, e",
+    "           não some do radar"
+  ],
+  "total": 7,
+  "isLast": true,
+  "names": {
+    "campo_origem": "Origem do bug",
+    "campo_legado": "Prazo do cliente",
+    "campo_atual": "Data limite",
+    "campo_interno": "Prazo interno",
+    "campo_corrob": "Dias para o vencimento",
+    "created": "Criado em"
+  },
+  "issues": [
+    {
+      "key": "MRD-101",
+      "fields": {
+        "created": "2026-07-20T09:12:00.000-0300",
+        "campo_origem": { "value": "Cliente" },
+        "campo_legado": "2026-09-05",
+        "campo_atual": "2026-09-20",
+        "campo_interno": null,
+        "campo_corrob": 6
+      }
+    },
+    {
+      "key": "MRD-102",
+      "fields": {
+        "created": "2026-08-28T14:40:00.000-0300",
+        "campo_origem": { "value": "Monitoramento" },
+        "campo_legado": "2026-08-30",
+        "campo_atual": "2026-09-16",
+        "campo_interno": null,
+        "campo_corrob": 2
+      }
+    },
+    {
+      "key": "MRD-103",
+      "fields": {
+        "created": "2026-09-01T08:05:00.000-0300",
+        "campo_origem": null,
+        "campo_legado": null,
+        "campo_atual": "2026-09-14",
+        "campo_interno": "2026-09-30",
+        "campo_corrob": 0
+      }
+    },
+    {
+      "key": "MRD-104",
+      "fields": {
+        "created": "2026-08-01T11:00:00.000-0300",
+        "campo_origem": { "value": "Suporte" },
+        "campo_legado": null,
+        "campo_atual": "   ",
+        "campo_interno": null,
+        "campo_corrob": null
+      }
+    },
+    {
+      "key": "MRD-105",
+      "fields": {
+        "created": "2026-09-02T16:30:00.000-0300",
+        "campo_origem": { "value": "Engenharia" },
+        "campo_legado": null,
+        "campo_atual": null,
+        "campo_interno": "2026-10-30",
+        "campo_corrob": 46
+      }
+    },
+    {
+      "key": "MRD-106",
+      "fields": {
+        "created": "2026-09-10T10:15:00.000-0300",
+        "campo_origem": { "value": "Cliente" },
+        "campo_legado": null,
+        "campo_atual": null,
+        "campo_interno": null,
+        "campo_corrob": null
+      }
+    },
+    {
+      "key": "MRD-107",
+      "fields": {
+        "created": "2026-08-20T13:45:00.000-0300",
+        "campo_origem": { "value": "Parceiro" },
+        "campo_legado": null,
+        "campo_atual": "2026-09-01",
+        "campo_interno": null,
+        "campo_corrob": -13
+      }
+    }
+  ]
+}

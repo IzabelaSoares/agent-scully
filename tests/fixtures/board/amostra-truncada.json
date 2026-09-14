@@ -1,0 +1,26 @@
+{
+  "_comentario": [
+    "Dublê: a amostra é menor que o total que o board declara.",
+    "",
+    "É a armadilha da SPEC §10 — «o tamanho da página não é o total» — na forma",
+    "que ela aparece no board: reportar `length` como total subnotifica em",
+    "silêncio, e subnotificação silenciosa é a falha que a SPEC §1 proíbe.",
+    "A saída do radar tem de marcar `truncado` em vez de fingir que olhou tudo."
+  ],
+  "total": 99,
+  "isLast": false,
+  "names": {
+    "campo_origem": "Origem do bug",
+    "campo_atual": "Data limite"
+  },
+  "issues": [
+    {
+      "key": "MRD-201",
+      "fields": {
+        "created": "2026-09-01T09:00:00.000-0300",
+        "campo_origem": { "value": "Cliente" },
+        "campo_atual": "2026-09-02"
+      }
+    }
+  ]
+}

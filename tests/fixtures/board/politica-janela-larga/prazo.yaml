@@ -1,3 +1,15 @@
+# Dublê: a política de verdade com UM número trocado — a janela do 🟡 passa de
+# três dias para sessenta.
+#
+# É o que prova que o corte sai do arquivo, e não de literal no radar: sobre a
+# mesma amostra e a mesma data de referência, um bug que era 🟢 vira 🟡 sem que
+# uma linha de script mude. Trocar a precedência ou o corte é diff de uma linha,
+# revisável por quem entende do negócio e não do bash (decisões 0003).
+#
+# O resto do arquivo é cópia deliberada: o dublê tem de continuar sendo uma
+# política VÁLIDA, senão o radar recusaria por outro motivo e a asserção
+# passaria por acidente.
+
 # Política de prazo do radar do board (TASKS C1, decisões 0003).
 #
 # Qual campo de prazo vale, em que precedência, e o que vale quando nenhum
@@ -114,7 +126,7 @@ classificacao:
   # prazo de fim de semana passa —, e ainda é horizonte em que dá para agir.
   # Zero transformaria o 🟡 em aviso de véspera; dez encheriam o laudo de bug que
   # ninguém vai tocar hoje, e laudo cheio se aprende a ignorar (SPEC §7).
-  janela_amarelo_dias: 3
+  janela_amarelo_dias: 60
 
   # 🟡 pela idade: a partir de quantos dias de vida um bug **sem prazo
   # declarado** aparece. Catorze é duas semanas de fila — tempo em que ele já
