@@ -14,7 +14,9 @@ Ele alimenta quem está de plantão. Não substitui.
 > `tests/casos/05-credenciais.sh`), a **política de prazo declarativa**
 > (`.ai/politicas/prazo.yaml`, coberta por `tests/casos/07-prazo.sh`) e o
 > **primeiro coletor**: o radar de prazo (`.ai/tools/coleta/board-radar.sh`,
-> coberto por `tests/casos/08-radar-prazo.sh`). **O radar ainda não falou com
+> coberto por `tests/casos/08-radar-prazo.sh`), com o número que ele devolve
+> **conferido à mão** e registrado em `tests/fixtures/board/conferencia.md`
+> (coberto por `tests/casos/09-conferencia.sh`). **O radar ainda não falou com
 > board nenhum** — o board do alvo nasce na Etapa 5, então o caminho de rede
 > está escrito e não foi exercitado; o que a suíte prova é a normalização e a
 > classificação, sobre amostra versionada. **Não há laudo nem ronda agendada.**
