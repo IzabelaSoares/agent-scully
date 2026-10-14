@@ -1,0 +1,26 @@
+{
+  "_comentario": [
+    "Dublê: o campo de prazo que a política escolheu traz algo que não é data.",
+    "",
+    "Tratar isso como «sem prazo» mandaria a issue para o fallback, e um prazo",
+    "de verdade seria reportado como IDADE — estimativa desta casa apresentada",
+    "no lugar de promessa, que é como um laudo perde crédito de uma vez.",
+    "O radar tem de parar e dizer, citando a chave e nunca o valor."
+  ],
+  "total": 1,
+  "isLast": true,
+  "names": {
+    "campo_origem": "Origem do bug",
+    "campo_atual": "Data limite"
+  },
+  "issues": [
+    {
+      "key": "MRD-301",
+      "fields": {
+        "created": "2026-09-01T09:00:00.000-0300",
+        "campo_origem": { "value": "Cliente" },
+        "campo_atual": "ontem de manhã"
+      }
+    }
+  ]
+}

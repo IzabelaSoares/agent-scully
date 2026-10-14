@@ -34,7 +34,7 @@ harness (permissões), não documentação. Só o Claude Code o lê, e é ele qu
   tools/            ← código determinístico, sem LLM
     coleta/           # devolvem JSON normalizado; só GET
     acoes/            # as escritas, com a restrição embutida no wrapper
-    lib/              # comum (ambiente, http, limites)
+    lib/              # comum (ambiente, leitura de política, http, limites)
   templates/        ← formatos de saída; o agente preenche, não inventa
   skills/           ← procedimento sob demanda: recebe o JSON e julga
   commands/         ← ponto de entrada: janela + composição

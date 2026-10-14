@@ -434,6 +434,16 @@ como *herdada*.
   *(herdada)*. `?query=...` navega e **não aplica filtro nenhum** — falha
   silenciosa, o pior tipo. Conferir que o link gerado chega com o filtro
   aplicado, não só que ele abre.
+- **`jq` sai 0 sobre entrada vazia, e sem imprimir nada** — 14/09/2026. Um
+  coletor que confere só o status do `jq` sai **0 com a saída vazia**, e saída
+  vazia se lê como "não havia nada". **Evidência:** ao escrever
+  `tests/casos/08-radar-prazo.sh`, o bloco que roda o radar num `PATH` sem as
+  ferramentas de sempre pegou o caso — sem `cat`, a carga chegou vazia ao `jq`,
+  que devolveu 0 e nada, e o coletor reportou sucesso com fila vazia. É
+  exatamente a falha que a §1 proíbe, e ela atravessou `set -uo pipefail` sem
+  ruído. Duas defesas, e as duas são necessárias: ler arquivo por redireção do
+  bash em vez de comando externo, e **conferir status e conteúdo**, nunca só o
+  status.
 
 ## 11. Critérios de aceite
 

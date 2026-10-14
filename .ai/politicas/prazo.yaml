@@ -23,10 +23,6 @@
 # Toda linha de valor traz a razão ao lado ou imediatamente acima, e isso
 # também é verificado — valor sem razão é valor que a próxima pessoa não sabe
 # ajustar, e que por isso fica errado por inércia.
-#
-# O que **não** está aqui ainda: a janela do 🟡 e o corte do 🔴, que são
-# calibragem da classificação e chegam com o radar (TASKS C2). Ausência aqui é
-# etapa não começada, não lacuna esquecida.
 
 # Versão do FORMATO, não do conteúdo: ela muda quando a forma muda, e é o que
 # permite ao leitor recusar um arquivo que ele não entende em vez de ler pela
@@ -98,6 +94,35 @@ modos_de_fallback:
   # de dizer isso na letra: apresentar estimativa desta casa como promessa é
   # como um painel perde crédito, e perde de uma vez.
   idade_desde_criacao: "dias desde a criação da issue, declarados como idade e nunca como prazo"
+
+# ─── Classificação ──────────────────────────────────────────────────────────
+# Calibragem, e não regra (SPEC §9.1): estes números existem **para ser
+# ajustados** quando a prática mostrar que estão errados, e ajustá-los é diff de
+# uma linha — não mudança de código, teste e revisão.
+#
+# ⚠️ O que **não** é número, e por isso não vira chave aqui: 🔴 é *prazo
+# vencido*, que é o significado da data e não um limiar. Parametrizar isso
+# ofereceria a alguém a chance de declarar "vencido" um prazo que não venceu.
+#
+# ⚠️ E 🔴 **não existe pela idade**: bug sem prazo declarado entra pelo fallback,
+# e idade é estimativa desta casa, nunca promessa a estourar (`modos_de_fallback`
+# acima). Por isso há corte de 🟡 para idade e nenhum de 🔴.
+
+classificacao:
+  # 🟡 «a estourar»: de quantos dias é a janela de antecedência. Três alcança a
+  # segunda-feira a partir da ronda de sexta — que é o buraco por onde bug com
+  # prazo de fim de semana passa —, e ainda é horizonte em que dá para agir.
+  # Zero transformaria o 🟡 em aviso de véspera; dez encheriam o laudo de bug que
+  # ninguém vai tocar hoje, e laudo cheio se aprende a ignorar (SPEC §7).
+  janela_amarelo_dias: 3
+
+  # 🟡 pela idade: a partir de quantos dias de vida um bug **sem prazo
+  # declarado** aparece. Catorze é duas semanas de fila — tempo em que ele já
+  # passou por dez rondas sem ninguém pegá-lo. Sem este corte, o fallback
+  # despejaria a fila inteira no laudo todo dia; com ele grande demais, a parte
+  # mais antiga da fila volta a ficar invisível, que é o estrago que o fallback
+  # existe para impedir (decisões 0003).
+  idade_amarelo_dias: 14
 
 # ─── Corroboração ───────────────────────────────────────────────────────────
 

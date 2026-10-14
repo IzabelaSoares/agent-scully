@@ -6,19 +6,23 @@ que existe em volta dele — não só o estado.
 
 Ele alimenta quem está de plantão. Não substitui.
 
-> **Estado: Etapa 1 de 12, em curso** — a Etapa 0 (contrato e rede de
-> segurança) está fechada. O que existe hoje é a especificação, a suíte de
-> testes, o CI, a **biblioteca de ambiente** (`.ai/tools/lib/env.sh`, coberta
-> por `tests/casos/03-ambiente.sh`) e a **verificação de credenciais**
-> (`ops/verificar-credenciais.sh`, coberta por `tests/casos/05-credenciais.sh`)
-> — que confere o que dá para conferir e reporta como lacuna, com o motivo, o
-> que ainda não dá. O caminho do clone até aí está em
-> [`PRIMEIRO-DIA.md`](PRIMEIRO-DIA.md), e
+> **Estado: Etapa 2 de 12, em curso** — as Etapas 0 (contrato e rede de
+> segurança) e 1 (ambiente e credenciais) estão fechadas. O que existe hoje é a
+> especificação, a suíte de testes, o CI, a **biblioteca de ambiente**
+> (`.ai/tools/lib/env.sh`, coberta por `tests/casos/03-ambiente.sh`), a
+> **verificação de credenciais** (`ops/verificar-credenciais.sh`, coberta por
+> `tests/casos/05-credenciais.sh`), a **política de prazo declarativa**
+> (`.ai/politicas/prazo.yaml`, coberta por `tests/casos/07-prazo.sh`) e o
+> **primeiro coletor**: o radar de prazo (`.ai/tools/coleta/board-radar.sh`,
+> coberto por `tests/casos/08-radar-prazo.sh`). **O radar ainda não falou com
+> board nenhum** — o board do alvo nasce na Etapa 5, então o caminho de rede
+> está escrito e não foi exercitado; o que a suíte prova é a normalização e a
+> classificação, sobre amostra versionada. **Não há laudo nem ronda agendada.**
+> O caminho do clone até aqui está em [`PRIMEIRO-DIA.md`](PRIMEIRO-DIA.md), e
 > `tests/casos/06-primeiro-dia.sh` falha quando ele deixa de bater com o
-> repositório. **Nenhum coletor está implementado.** Este
-> bloco é atualizado a cada etapa, e nenhuma afirmação de estado entra aqui sem
-> teste que a sustente — é a regra da [SPEC §1](docs/SPEC.md), aplicada ao
-> próprio README.
+> repositório. Este bloco é atualizado a cada etapa, e nenhuma afirmação de
+> estado entra aqui sem teste que a sustente — é a regra da
+> [SPEC §1](docs/SPEC.md), aplicada ao próprio README.
 
 ---
 
