@@ -77,7 +77,9 @@ deixa o laudo **afirmar** "prazos sob controle" em vez de deixar a seção vazia
 A data de referência é injetável por `SCULLY_AGORA`, e isso não é conveniência:
 **sem ela a classificação é intestável**, porque o mesmo comando muda de
 resposta amanhã. `--amostra <arquivo>` roda sobre uma resposta salva, que é o
-que permite conferir o número à mão sobre a mesma entrada (task C3).
+que permite conferir o número à mão sobre a mesma entrada — e essa conferência
+está feita e versionada em `tests/fixtures/board/conferencia.md` (task C3), de
+onde `tests/casos/09-conferencia.sh` tira o esperado.
 
 O leitor do `.yaml` é [`.ai/tools/lib/politica.py`](../tools/lib/politica.py), e
 é **um só**: o mesmo que a suíte usa para verificar a política. Dois leitores

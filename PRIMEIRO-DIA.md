@@ -240,13 +240,14 @@ exercitado**. O que a suíte exercita é a normalização e a classificação, s
 amostra — e é só isso que este arquivo afirma.
 
 O que existe é o que os oito passos acima exercitaram: a especificação, a suíte,
-o CI, a biblioteca de ambiente, a verificação de credenciais, a política de prazo
-e o radar que a lê. O que falta para uma ronda de verdade, na ordem em que chega
-([`docs/PLAN.md`](docs/PLAN.md)):
+o CI, a biblioteca de ambiente, a verificação de credenciais, a política de
+prazo, o radar que a lê e a conferência à mão do número que ele devolve
+(`tests/fixtures/board/conferencia.md`). O que falta para uma ronda de verdade,
+na ordem em que chega ([`docs/PLAN.md`](docs/PLAN.md)):
 
 | Etapa | O que ela destrava | Este arquivo ganha |
 |---|---|---|
-| 2 (resto) | conferência do número à mão, retentativa e o estado de fonte caída | a prova de que o radar acerta, e o que ele faz quando o board cai |
+| 2 (resto) | retentativa e o estado de fonte caída | o que o radar faz quando o board cai |
 | 3 | o laudo: template, golden file, contrato, postagem no Slack | o primeiro laudo, e a conferência dele |
 | 4 | a ronda mora no GitHub Actions: cron e disparo manual | como agendar, e como disparar à mão |
 

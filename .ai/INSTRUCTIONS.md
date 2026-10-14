@@ -25,10 +25,12 @@ board; as Etapas 0 e 1 estão fechadas. Existe **um** coletor: o radar de prazo
 ⚠️ **O radar ainda não falou com board nenhum.** O board do alvo nasce na
 Etapa 5; o caminho de rede está escrito e **não foi exercitado**. O que a suíte
 prova é a normalização e a classificação, sobre amostra versionada em
-`tests/fixtures/board/`. A conferência do número à mão é a task C3, e a
-retentativa com o estado de fonte caída é a C4 — até ela, falha de coleta sai
-como status ≠ 0, nunca como fila vazia. Qualquer afirmação de que algo "roda"
-precisa de teste que a sustente.
+`tests/fixtures/board/` — e o número que ele devolve sobre ela está **conferido
+à mão**, célula a célula, em `tests/fixtures/board/conferencia.md` (task C3): é
+de lá que `tests/casos/09-conferencia.sh` tira o esperado, e não de asserção
+escrita no próprio caso. A retentativa com o estado de fonte caída é a C4 — até
+ela, falha de coleta sai como status ≠ 0, nunca como fila vazia. Qualquer
+afirmação de que algo "roda" precisa de teste que a sustente.
 
 ## Sumário
 

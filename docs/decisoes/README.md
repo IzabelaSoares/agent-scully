@@ -31,3 +31,4 @@ critério de revisão é preferência com carimbo.
 | [0003](0003-politica-de-sla-declarativa.md) | A política de prazo é dado declarativo, não código |
 | [0004](0004-metrica-de-processo-nao-e-meta.md) | Métrica de processo é instrumento, nunca meta |
 | [0005](0005-idade-nao-e-prazo-na-saida-do-radar.md) | Idade e prazo são campos separados na saída do radar |
+| [0006](0006-o-esperado-mora-na-conferencia-a-mao.md) | O número esperado do radar mora na conferência à mão, não no caso |
