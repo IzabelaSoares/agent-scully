@@ -1,0 +1,15 @@
+# Dublê da política de coleta: nenhuma retentativa.
+#
+# É a prova de que o número de tentativas sai do arquivo e não do script. Sobre
+# o mesmo dublê de `curl` que falha sempre, o coletor passa a chamar UMA vez —
+# e nenhuma linha de script muda. Com o `2` literal no coletor, este dublê não
+# mudaria contagem nenhuma, e a asserção falharia.
+
+versao: 1
+
+retentativa:
+  tentativas_extras: 0       # nenhuma: é o que esta contagem existe para provar
+  espera_inicial_segundos: 0 # não há espera quando não há segunda tentativa
+  fator_de_espera: 1         # nada a crescer
+
+tempo_limite_segundos: 5     # dublê não demora; teto só para não pendurar o CI

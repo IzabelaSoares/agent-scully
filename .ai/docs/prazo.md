@@ -102,12 +102,19 @@ a divergência apareceria como número errado no laudo — sem nada falhando.
 classificação muda quando o `.yaml` muda, e que ela muda quando a data de
 referência muda.
 
+**Garante também**, por teste (`tests/casos/10-radar-indisponivel.sh`, com
+dublê de `curl`): que a coleta que falha com erro transitório é repetida duas
+vezes, com espera crescente, e que, persistindo, a saída sai marcada
+`indisponivel` — nunca como fila vazia. Quantas tentativas e quanto se espera
+saem de [`.ai/politicas/coleta.yaml`](../politicas/coleta.yaml), que é outra
+política e tem outro consumidor: ela vale para o caminho de rede de qualquer
+coletor, e não para a escolha de prazo.
+
 **Não garante:** que a consulta ao board funcione. O board do alvo nasce na
-Etapa 5 e ainda não existe, então o caminho de rede do radar está escrito e
-**não foi exercitado contra board nenhum**. O que a suíte exercita é a
-normalização e a classificação, sobre amostra. Retentativa e o estado de fonte
-caída são a task C4; até lá, falha de coleta sai como status ≠ 0 — nunca como
-fila vazia.
+Etapa 5 e ainda não existe, então o JQL e os nomes de campo **não foram
+exercitados contra board nenhum** — o que a suíte exercita, do caminho de rede,
+é o que um dublê de `curl` consegue exercitar: a retentativa e os dois estados
+de falha. A conferência do número à mão é a task C3.
 
 ## Onde não mexer
 

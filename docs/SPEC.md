@@ -434,6 +434,19 @@ como *herdada*.
   *(herdada)*. `?query=...` navega e **não aplica filtro nenhum** — falha
   silenciosa, o pior tipo. Conferir que o link gerado chega com o filtro
   aplicado, não só que ele abre.
+- **`curl` sai 0 numa resposta 500, e o corpo de erro normaliza como fila
+  vazia** — 16/10/2026. Sem `--write-out '%{http_code}'` o coletor só enxerga o
+  status do próprio `curl`, que é **0**: a resposta 500 fica indistinguível de
+  uma 200. A primeira consequência é que erro transitório nunca é repetido — a
+  retentativa deste contrato não chega nem a disparar. A segunda é mais cara: o
+  corpo de erro do board é entregue à normalização como se fosse carga.
+  **Evidência:** o corpo que o dublê `tests/fixtures/board/duble-curl.sh`
+  devolve num 500 — JSON bem formado, só sem `issues` — passado ao radar por
+  `--amostra` devolve `total: 0`, `sob_controle: 0` e `itens: []`, com status 0.
+  É "a fila está vazia" afirmado com confiança sobre uma fonte que caiu, que é
+  exatamente a falha silenciosa que a §1 proíbe. A defesa é ler o código HTTP
+  junto do corpo e **classificar antes de normalizar**; verificada em
+  `tests/casos/10-radar-indisponivel.sh`.
 - **`jq` sai 0 sobre entrada vazia, e sem imprimir nada** — 14/09/2026. Um
   coletor que confere só o status do `jq` sai **0 com a saída vazia**, e saída
   vazia se lê como "não havia nada". **Evidência:** ao escrever

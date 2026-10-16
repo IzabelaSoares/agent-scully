@@ -1,0 +1,54 @@
+# Calibragem da coleta — quanto se insiste quando a fonte falha (TASKS C4).
+#
+# Vale para o caminho de REDE de qualquer coletor. Nada aqui decide o que é
+# erro transitório: a lista (5xx, 429, timeout) é contrato da
+# [SPEC](../../docs/SPEC.md) §7, não limiar, e por isso mora no coletor e não
+# neste arquivo. O que mora aqui é **quanto** se insiste e **quanto** se espera
+# — que é o que se ajusta sem decisão (SPEC §9.1).
+#
+# ⚠️ Isto é DADO, e é a única fonte: nenhum destes números aparece literal em
+# script. `tests/casos/10-radar-indisponivel.sh` prova a dependência trocando o
+# arquivo — com `tentativas_extras: 0` o coletor chama uma vez só, sem que
+# nenhuma linha de script mude.
+#
+# Formato: o mesmo subconjunto restrito de `prazo.yaml`, lido pelo mesmo
+# `.ai/tools/lib/politica.py`. Toda linha de valor traz a razão ao lado ou
+# imediatamente acima — valor sem razão é valor que a próxima pessoa não sabe
+# ajustar, e que por isso fica errado por inércia.
+
+# Versão do FORMATO, não do conteúdo: ela muda quando a forma muda, e é o que
+# permite ao leitor recusar um arquivo que ele não entende em vez de ler pela
+# metade.
+versao: 1
+
+# ─── Retentativa ────────────────────────────────────────────────────────────
+# Erro transitório é comum e barato de contornar; insistir demais é caro de
+# outro jeito. Uma ronda que espera três minutos por uma fonte caída atrasa o
+# laudo das outras seis, e laudo que chega tarde não é lido.
+
+retentativa:
+  # Quantas tentativas NOVAS depois da primeira. Duas é o que a SPEC §7 fixou
+  # como contrato de saída, e o que cobre o modo de falha que se vê na prática:
+  # o 5xx de janela de deploy e o 429 de rajada, que passam em segundos. Zero
+  # transformaria qualquer soluço em fonte caída; cinco gastariam a janela da
+  # ronda numa fonte que já se decidiu reportar como indisponível.
+  tentativas_extras: 2
+
+  # Quanto se espera antes da PRIMEIRA retentativa, em segundos. Dois é mais
+  # que a rajada típica e menos que a paciência de quem espera o laudo.
+  espera_inicial_segundos: 2
+
+  # Por quanto a espera é multiplicada a cada nova tentativa — é o que a torna
+  # **crescente**. Com 2 e 2 acima, a sequência é 2s e depois 4s: seis segundos
+  # no pior caso, o teto que a ronda consegue pagar por fonte. Fator 1 daria
+  # espera constante, que é insistir no mesmo instante do problema.
+  fator_de_espera: 2
+
+# ─── Tempo-limite de cada chamada ───────────────────────────────────────────
+
+# Quanto se espera por UMA chamada, em segundos. Vinte, e não os dez de
+# `verificacao.yaml`: lá a chamada é a mais barata da API ("quem sou eu"); aqui
+# é uma busca na fila aberta do board, que pagina e filtra. É também o que
+# limita o pior caso da coleta — três tentativas de 20s mais 6s de espera —,
+# porque timeout sem teto é a ronda inteira pendurada numa fonte só.
+tempo_limite_segundos: 20

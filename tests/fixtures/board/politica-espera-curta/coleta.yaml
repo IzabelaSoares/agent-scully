@@ -1,0 +1,15 @@
+# Dublê da política de coleta: espera curta, mas DE VERDADE.
+#
+# Existe para a única asserção que não se pode fazer sem relógio: que o coletor
+# espera, e que a espera cresce. Com 1 e fator 2 a sequência é 1s e 2s — três
+# segundos no total, que é o que a suíte consegue pagar para provar que o
+# `sleep` acontece em vez de ser só anunciado no stderr.
+
+versao: 1
+
+retentativa:
+  tentativas_extras: 2       # duas esperas, que é o mínimo para haver sequência
+  espera_inicial_segundos: 1 # o menor valor que um relógio de segundos enxerga
+  fator_de_espera: 2         # 1s e depois 2s: a espera cresce, e dá para medir
+
+tempo_limite_segundos: 5     # dublê não demora; teto só para não pendurar o CI

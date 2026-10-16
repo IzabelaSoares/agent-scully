@@ -1,0 +1,17 @@
+# Dublê da política de coleta: as mesmas tentativas, sem espera nenhuma.
+#
+# A suíte não pode pagar seis segundos de espera por caso, e dormir de verdade
+# não prova nada que o relógio não prove. Que a espera EXISTE e CRESCE é
+# provado à parte, com `politica-espera-curta/`, que dorme de verdade.
+#
+# Zero aqui é também a asserção de que o coletor lê o valor em vez de assumir
+# um: com espera literal em script, este dublê não mudaria nada.
+
+versao: 1
+
+retentativa:
+  tentativas_extras: 2       # as duas da SPEC §7, que é o que se quer contar
+  espera_inicial_segundos: 0 # sem espera: o caso mede chamadas, não segundos
+  fator_de_espera: 1         # nada a crescer a partir de zero
+
+tempo_limite_segundos: 5     # dublê não demora; teto só para não pendurar o CI
