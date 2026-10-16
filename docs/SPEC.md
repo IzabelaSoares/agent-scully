@@ -434,6 +434,32 @@ como *herdada*.
   *(herdada)*. `?query=...` navega e **não aplica filtro nenhum** — falha
   silenciosa, o pior tipo. Conferir que o link gerado chega com o filtro
   aplicado, não só que ele abre.
+- **A suíte varre `git ls-files`: arquivo novo ainda não adicionado não é
+  verificado** — 16/10/2026. Os casos que varrem o repositório — sanitização,
+  verificação estática, inventário de credenciais, literal de campo de prazo —
+  partem de `git ls-files`, e isso é deliberado: é o que vai para o repositório
+  público que importa. O efeito colateral é que **arquivo novo ainda fora do
+  índice não é varrido por nenhum deles**, e a suíte passa verde na máquina de
+  quem o escreveu. O CI clona, então lá ele está rastreado — e o caso falha.
+  **Evidência:** o caso novo `tests/casos/10-radar-indisponivel.sh` passou
+  localmente com 262 asserções e derrubou o primeiro CI do PR #12
+  (`✗ ... lê CHAMADAS`): o inventário de credenciais só o enxergou depois do
+  `git add`. A defesa é barata e vale como hábito: **rodar `tests/run.sh`
+  depois do `git add`, nunca antes** — e desconfiar de suíte verde num commit
+  que estreia arquivo.
+- **`curl` sai 0 numa resposta 500, e o corpo de erro normaliza como fila
+  vazia** — 16/10/2026. Sem `--write-out '%{http_code}'` o coletor só enxerga o
+  status do próprio `curl`, que é **0**: a resposta 500 fica indistinguível de
+  uma 200. A primeira consequência é que erro transitório nunca é repetido — a
+  retentativa deste contrato não chega nem a disparar. A segunda é mais cara: o
+  corpo de erro do board é entregue à normalização como se fosse carga.
+  **Evidência:** o corpo que o dublê `tests/fixtures/board/duble-curl.sh`
+  devolve num 500 — JSON bem formado, só sem `issues` — passado ao radar por
+  `--amostra` devolve `total: 0`, `sob_controle: 0` e `itens: []`, com status 0.
+  É "a fila está vazia" afirmado com confiança sobre uma fonte que caiu, que é
+  exatamente a falha silenciosa que a §1 proíbe. A defesa é ler o código HTTP
+  junto do corpo e **classificar antes de normalizar**; verificada em
+  `tests/casos/10-radar-indisponivel.sh`.
 - **`jq` sai 0 sobre entrada vazia, e sem imprimir nada** — 14/09/2026. Um
   coletor que confere só o status do `jq` sai **0 com a saída vazia**, e saída
   vazia se lê como "não havia nada". **Evidência:** ao escrever

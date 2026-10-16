@@ -14,10 +14,14 @@ Ele alimenta quem está de plantão. Não substitui.
 > `tests/casos/05-credenciais.sh`), a **política de prazo declarativa**
 > (`.ai/politicas/prazo.yaml`, coberta por `tests/casos/07-prazo.sh`) e o
 > **primeiro coletor**: o radar de prazo (`.ai/tools/coleta/board-radar.sh`,
-> coberto por `tests/casos/08-radar-prazo.sh`). **O radar ainda não falou com
-> board nenhum** — o board do alvo nasce na Etapa 5, então o caminho de rede
-> está escrito e não foi exercitado; o que a suíte prova é a normalização e a
-> classificação, sobre amostra versionada. **Não há laudo nem ronda agendada.**
+> coberto por `tests/casos/08-radar-prazo.sh` e
+> `tests/casos/10-radar-indisponivel.sh`). **O radar ainda não falou com board
+> nenhum** — o board do alvo nasce na Etapa 5, então o JQL e os nomes de campo
+> não foram exercitados; o que a suíte prova é a normalização e a classificação
+> sobre amostra versionada e, com dublê de `curl`, a **retentativa** e os dois
+> estados de falha: fonte caída sai `indisponivel`, fonte sem credencial sai
+> `nao_integrada`, e nenhuma das duas vira fila vazia.
+> **Não há laudo nem ronda agendada.**
 > O caminho do clone até aqui está em [`PRIMEIRO-DIA.md`](PRIMEIRO-DIA.md), e
 > `tests/casos/06-primeiro-dia.sh` falha quando ele deixa de bater com o
 > repositório. Este bloco é atualizado a cada etapa, e nenhuma afirmação de

@@ -235,9 +235,11 @@ regra número um do projeto proíbe.
 ## Onde a trilha para hoje
 
 Aqui. Há **um** coletor, e ele ainda não falou com board nenhum: o board do alvo
-nasce na Etapa 5, então o caminho de rede do radar está escrito e **não foi
-exercitado**. O que a suíte exercita é a normalização e a classificação, sobre
-amostra — e é só isso que este arquivo afirma.
+nasce na Etapa 5, então o JQL e os nomes de campo do radar **não foram
+exercitados**. O que a suíte exercita é a normalização e a classificação, sobre
+amostra, e — com um dublê de `curl` — a retentativa e os dois estados de falha:
+fonte caída sai `indisponivel`, fonte sem credencial sai `nao_integrada`, e
+nenhuma das duas vira fila vazia. É só isso que este arquivo afirma.
 
 O que existe é o que os oito passos acima exercitaram: a especificação, a suíte,
 o CI, a biblioteca de ambiente, a verificação de credenciais, a política de prazo
@@ -246,7 +248,7 @@ e o radar que a lê. O que falta para uma ronda de verdade, na ordem em que cheg
 
 | Etapa | O que ela destrava | Este arquivo ganha |
 |---|---|---|
-| 2 (resto) | conferência do número à mão, retentativa e o estado de fonte caída | a prova de que o radar acerta, e o que ele faz quando o board cai |
+| 2 (resto) | a conferência do número à mão | a prova de que o radar acerta sobre a amostra |
 | 3 | o laudo: template, golden file, contrato, postagem no Slack | o primeiro laudo, e a conferência dele |
 | 4 | a ronda mora no GitHub Actions: cron e disparo manual | como agendar, e como disparar à mão |
 

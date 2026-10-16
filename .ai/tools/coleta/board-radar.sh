@@ -16,6 +16,10 @@
 # {
 #   "referencia":   "2026-09-14",   a data em que o radar julgou — sem ela nada
 #                                   do resto é conferível, nem reproduzível
+#   "indisponivel": false,          a fonte falhou NESTA execução, depois das
+#                                   retentativas — exige atenção
+#   "nao_integrada":false,          a fonte não está configurada — lacuna
+#                                   conhecida, e não problema do dia
 #   "total":        7,              o que o board diz existir, não o tamanho da
 #                                   amostra: reportar `length` como total
 #                                   subnotifica em silêncio (SPEC §10)
@@ -27,6 +31,16 @@
 #                                   deixar a seção vazia (SPEC §7)
 #   "itens": [ ... ]                só 🔴 e 🟡 — o que pede linha no laudo
 #  }
+#
+# ⚠️ Nos dois estados de falha a saída tem **só** as três primeiras chaves: sem
+# `total`, sem `examinados`, sem `sob_controle` e **sem `itens`** (TASKS C4).
+# A ausência é deliberada e é a regra na forma do dado — `itens: []` se lê como
+# "não havia nada" e `total: 0` como "a fila está vazia", que é precisamente o
+# que a SPEC §1 proíbe. Quem consome lê `null` ao pedir `.itens`, e `null` não
+# se confunde com lista vazia. Os dois estados são distinguíveis entre si
+# porque são duas chaves, e não dois valores de uma: fonte caída exige atenção
+# hoje; fonte não integrada é lacuna planejada, e um ⚠️ que aparece todo dia
+# por semanas treina o time a ignorá-lo (SPEC §7).
 #
 # E cada item, com os campos que o julgamento usa e nenhum a mais:
 #
@@ -58,14 +72,22 @@
 # aí a classificação é intestável, porque o mesmo comando muda de resposta
 # amanhã.
 #
-# Status: 0 com o JSON no stdout; 1 com o motivo no stderr e **nada** no stdout.
-# Saída pela metade é pior que saída nenhuma: ela parece resposta.
+# Status: 0 com o JSON no stdout — **inclusive** nos dois estados de falha
+# acima, porque reportar a falha é ter conseguido responder, e é o que permite
+# ao laudo sair com a seção marcada em vez de omitir em silêncio (SPEC §7). O
+# que sai 1, com o motivo no stderr e **nada** no stdout, é o que este coletor
+# não sabe reportar: política ausente, ferramenta ausente, resposta que ele não
+# entende. Saída pela metade é pior que saída nenhuma: ela parece resposta.
 #
-# ⚠️ **O que esta suíte NÃO prova:** o caminho de rede. O board do alvo nasce na
-# Etapa 5 e não existe ainda, então a consulta abaixo está escrita e **não foi
-# exercitada contra board nenhum**. O que a suíte prova é a normalização e a
-# classificação, sobre amostra. Retentativa e o estado de fonte caída são a task
-# C4, e até lá falha de coleta aqui é status ≠ 0 — nunca lista vazia.
+# Todo diagnóstico — código HTTP, número da tentativa — vai para o **stderr**.
+# Ele é log da execução, e não conteúdo de laudo (SPEC §7).
+#
+# ⚠️ **O que esta suíte NÃO prova:** que a consulta funcione contra um board de
+# verdade. O board do alvo nasce na Etapa 5 e não existe ainda, então o JQL e os
+# campos abaixo **não foram exercitados contra board nenhum**. O que a suíte
+# prova é a normalização, a classificação e — com dublê de `curl`, em
+# `tests/casos/10-radar-indisponivel.sh` — a retentativa e os dois estados de
+# falha.
 
 set -uo pipefail
 
@@ -156,6 +178,20 @@ if [[ ! "$REFERENCIA" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
   exit 1
 fi
 
+# ─── Os dois estados declarados de falha ────────────────────────────────────
+# A SPEC §7 distingue fonte CAÍDA de fonte NÃO INTEGRADA, e proíbe que qualquer
+# uma vire número. Aqui isso é estrutura: a saída de estado não tem `total`,
+# não tem `sob_controle` e **não tem `itens`** — não há lista vazia a confundir
+# com fila vazia, porque não há lista.
+
+estado() {
+  jq -n --arg ref "$REFERENCIA" --arg qual "$1" '{
+    referencia: $ref,
+    indisponivel: ($qual == "indisponivel"),
+    nao_integrada: ($qual == "nao_integrada")
+  }'
+}
+
 # ─── A carga: da amostra, ou do board ───────────────────────────────────────
 
 if [ -n "$AMOSTRA" ]; then
@@ -181,15 +217,73 @@ else
     [ -n "${!nome:-}" ] || faltando+=("$nome")
   done
   if [ "${#faltando[@]}" -gt 0 ]; then
+    # Fonte não configurada é LACUNA, não incidente: ela sai como estado na
+    # própria saída, para o laudo marcá-la 🚧 em vez de omitir a seção. Nada
+    # foi coletado, e nada vira `[]` — fila vazia é outra afirmação.
     printf 'board-radar: sem credencial do board — falta %s\n' "${faltando[*]}" >&2
-    printf '  Nada foi coletado. Fonte não configurada NÃO é fila vazia, e\n' >&2
-    printf '  transformá-la em `[]` é a falha silenciosa que a SPEC §1 proíbe.\n' >&2
-    printf '  (O estado `nao_integrada` na própria saída é a task C4.)\n' >&2
-    exit 1
+    printf '  Nada foi coletado; a saída sai marcada como não integrada.\n' >&2
+    estado nao_integrada
+    exit 0
   fi
 
   if ! command -v curl >/dev/null 2>&1; then
     printf 'board-radar: curl não está instalado — nada foi coletado\n' >&2
+    exit 1
+  fi
+
+  # ─── A política de coleta ────────────────────────────────────────────────
+  # Quantas tentativas e quanto se espera saem de `coleta.yaml` (TASKS C4). O
+  # que conta como erro **transitório** não sai de lá: 5xx, 429 e timeout são
+  # contrato da SPEC §7, e não limiar que se ajusta sem decisão (SPEC §9.1).
+  #
+  # Lida só AQUI, e não junto com a de prazo: com `--amostra` não há chamada a
+  # repetir, e exigi-la ali obrigaria todo dublê de política da suíte a trazer
+  # um arquivo que o caminho exercitado não usa.
+
+  ARQUIVO_COLETA="$POLITICAS/coleta.yaml"
+  if [ ! -f "$ARQUIVO_COLETA" ]; then
+    printf 'board-radar: política de coleta ausente em %s\n' "$ARQUIVO_COLETA" >&2
+    printf '  Sem ela não há quantas tentativas nem quanto esperar, e assumir\n' >&2
+    printf '  um número aqui devolveria à mão o literal que a SPEC §9.1 tira.\n' >&2
+    exit 1
+  fi
+
+  COLETA=''
+  if ! COLETA="$(python3 "$RAIZ/.ai/tools/lib/politica.py" "$ARQUIVO_COLETA")"; then
+    printf 'board-radar: política de coleta ilegível — nada foi coletado\n' >&2
+    exit 1
+  fi
+
+  # Limiar que falta é limiar que voltaria como default silencioso aqui dentro.
+  #
+  # Declaradas uma por linha, e não quatro numa só: variável que nasce apenas
+  # de um `printf -v` fica invisível para quem varre o script atrás do que ele
+  # lê, e aparece como variável de ambiente não documentada (TASKS B2). Foi o
+  # `tests/casos/04-inventario.sh` que pegou, com as quatro numa linha.
+  TENTATIVAS_EXTRAS=''
+  ESPERA_INICIAL=''
+  FATOR_DE_ESPERA=''
+  TEMPO_LIMITE=''
+  for par in \
+    'TENTATIVAS_EXTRAS .retentativa.tentativas_extras' \
+    'ESPERA_INICIAL .retentativa.espera_inicial_segundos' \
+    'FATOR_DE_ESPERA .retentativa.fator_de_espera' \
+    'TEMPO_LIMITE .tempo_limite_segundos'; do
+    nome="${par%% *}"
+    caminho="${par#* }"
+    valor="$(printf '%s' "$COLETA" | jq -r "$caminho // \"\"")"
+    if [[ ! "$valor" =~ ^[0-9]+$ ]]; then
+      printf 'board-radar: %s não define %s\n' "$ARQUIVO_COLETA" "${caminho#.}" >&2
+      exit 1
+    fi
+    printf -v "$nome" '%s' "$valor"
+  done
+
+  # Fator menor que 1 faria a espera ENCOLHER a cada tentativa, que é o oposto
+  # do que a SPEC §7 pede — e passaria despercebido, porque continua esperando.
+  if [ "$FATOR_DE_ESPERA" -lt 1 ]; then
+    printf 'board-radar: %s define fator_de_espera < 1 — a espera encolheria\n' \
+      "$ARQUIVO_COLETA" >&2
     exit 1
   fi
 
@@ -221,15 +315,68 @@ else
   config="$config"$'\n'"data-urlencode = \"fields=*navigable\""
   config="$config"$'\n'"data-urlencode = \"expand=names\""
 
-  CARGA="$(printf '%s\n' "$config" | curl --config - --silent --show-error 2>/dev/null)"
-  status=$?
-  if [ "$status" -ne 0 ] || [ -z "$CARGA" ]; then
-    # Motivo em texto fixo, escolhido aqui: mensagem de rede cita o host, e o
-    # host identifica a instância de quem clonou.
-    printf 'board-radar: a consulta ao board não voltou (curl saiu %s) — nada foi coletado\n' \
-      "$status" >&2
-    exit 1
-  fi
+  # ─── A chamada, e as retentativas ────────────────────────────────────────
+  # `--write-out` acrescenta o código HTTP numa linha depois do corpo. Sem ele
+  # o `curl` sai **0** numa resposta 500, e um 500 indistinguível de um 200 é
+  # um erro transitório que nunca seria repetido — e um corpo de erro entregue
+  # ao `jq` como se fosse board (SPEC §10).
+  #
+  # O motivo que se imprime é escolhido aqui, nunca o que a rede devolveu:
+  # mensagem de `curl` cita o host, e o host identifica a instância de quem
+  # clonou (decisões 0002). E vai para o stderr, que é log da execução: código
+  # HTTP não entra em saída que o laudo lê (SPEC §7).
+
+  CARGA=''
+  tentativa=1
+  espera="$ESPERA_INICIAL"
+  total_tentativas=$((TENTATIVAS_EXTRAS + 1))
+
+  while :; do
+    resposta="$(printf '%s\n' "$config" | curl --config - \
+      --silent --show-error --write-out '\n%{http_code}' \
+      --max-time "$TEMPO_LIMITE" 2>/dev/null)"
+    status=$?
+    codigo="${resposta##*$'\n'}"
+    corpo="${resposta%$'\n'*}"
+    # Resposta que não se entende não é resposta que se repassa.
+    [[ "$codigo" =~ ^[0-9]{3}$ ]] || codigo='000'
+
+    if [ "$status" -eq 0 ] && [[ "$codigo" =~ ^2[0-9][0-9]$ ]]; then
+      CARGA="$corpo"
+      break
+    fi
+
+    # Transitório é o que a SPEC §7 enumera, e só: 5xx, 429 e timeout. Repetir
+    # um 401 é gastar a janela da ronda num erro que não muda sozinho.
+    transitorio=0
+    if [ "$status" -eq 28 ]; then
+      transitorio=1
+      motivo='estourou o tempo-limite'
+    elif [ "$status" -ne 0 ]; then
+      motivo="curl saiu $status"
+    else
+      motivo="HTTP $codigo"
+      if [ "$codigo" = '429' ] || [[ "$codigo" =~ ^5[0-9][0-9]$ ]]; then
+        transitorio=1
+      fi
+    fi
+
+    if [ "$transitorio" -eq 1 ] && [ "$tentativa" -lt "$total_tentativas" ]; then
+      printf 'board-radar: tentativa %s de %s falhou (%s) — nova tentativa em %ss\n' \
+        "$tentativa" "$total_tentativas" "$motivo" "$espera" >&2
+      [ "$espera" -gt 0 ] && sleep "$espera"
+      espera=$((espera * FATOR_DE_ESPERA))
+      tentativa=$((tentativa + 1))
+      continue
+    fi
+
+    printf 'board-radar: o board não respondeu (%s) em %s tentativa(s) — nada foi coletado\n' \
+      "$motivo" "$tentativa" >&2
+    printf '  A saída sai marcada como indisponível. Fonte caída NÃO é fila\n' >&2
+    printf '  vazia, e virar `[]` é a falha silenciosa que a SPEC §1 proíbe.\n' >&2
+    estado indisponivel
+    exit 0
+  done
 fi
 
 # ─── Normalização e classificação ───────────────────────────────────────────
@@ -313,6 +460,10 @@ def valor($issue; $nome; $id_de):
     problemas: $problemas,
     saida: {
       referencia: $ref,
+      # Declarados também aqui, e sempre: "a fonte respondeu" é afirmação, e
+      # afirmação não se infere da ausência de uma chave (SPEC §1).
+      indisponivel: false,
+      nao_integrada: false,
       total: ($declarado // ($issues | length)),
       examinados: ($issues | length),
       truncado: (

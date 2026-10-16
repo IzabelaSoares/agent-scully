@@ -75,9 +75,17 @@ afirmar_igual "$REF" "$(printf '%s' "$SAIDA" | jq -r .referencia)" \
 # Conjunto fechado, nos dois níveis. É a asserção que envelhece bem: ela falha
 # tanto quando alguém tira um campo quanto quando alguém acrescenta um.
 
-afirmar_igual 'examinados referencia sob_controle total truncado itens' \
+afirmar_igual 'examinados indisponivel nao_integrada referencia sob_controle total truncado itens' \
   "$(printf '%s' "$SAIDA" | jq -r 'keys_unsorted - ["itens"] | sort | join(" ")') itens" \
   'o topo da saída tem exatamente os campos declarados'
+
+# Os dois estados da SPEC §7 saem declarados mesmo quando a coleta deu certo:
+# "a fonte respondeu" é afirmação, e afirmação não se infere da ausência de uma
+# chave. O que eles fazem quando a fonte NÃO responde é o caso 10.
+afirmar_igual 'false false' \
+  "$(printf '%s' "$SAIDA" | jq -r '[.indisponivel, .nao_integrada] | join(" ")')" \
+  'coleta que deu certo diz que não houve falha, em vez de omitir'
+
 
 esperado_item='base campo_do_prazo chave classificacao dias_de_atraso dias_de_idade prazo_efetivo'
 afirmar_igual "$esperado_item" \
@@ -237,16 +245,19 @@ status=$?
 afirmar_igual '1' "$status" 'jq ausente faz sair 1'
 afirmar_contem 'jq não está instalado' "$saida" 'e diz que nada foi coletado'
 
-# ─── 14. Sem credencial: falha declarada, e nenhuma chamada ─────────────────
-# Fonte não configurada NÃO é fila vazia. O estado `nao_integrada` na própria
-# saída é a task C4; até lá, o que não pode é virar `[]`.
+# ─── 14. Sem credencial: estado declarado, e nenhuma chamada ────────────────
+# Fonte não configurada NÃO é fila vazia. Desde a C4 ela sai como estado na
+# própria saída — o que o laudo marca 🚧 —, e não mais como status ≠ 0. Os dois
+# estados e a retentativa são o caso 10; aqui fica só o que este caso já
+# exercitava: que nada vira `[]` e que nenhuma chamada é tentada.
 
 rm -f "$TMP/argv" "$TMP/stdin"
 saida="$(env -i PATH="$BIN_CURL:/usr/bin:/bin" SCULLY_SEM_ENV=1 \
   DUBLE_ARGV="$TMP/argv" DUBLE_STDIN="$TMP/stdin" bash "$RADAR" 2>&1)"
 status=$?
-afirmar_igual '1' "$status" 'sem credencial e sem amostra, o radar sai 1'
+afirmar_igual '0' "$status" 'sem credencial e sem amostra, o radar declara a lacuna e sai 0'
 afirmar_contem 'falta BOARD_BASE_URL' "$saida" 'e diz exatamente qual variável falta'
+afirmar_contem '"nao_integrada": true' "$saida" 'e a saída vem marcada como não integrada'
 afirmar_nao_contem '"itens"' "$saida" 'e não devolve fila vazia no lugar da fonte'
 if [ -e "$TMP/argv" ]; then
   afirmar 1 'sem credencial, nenhuma chamada é tentada'

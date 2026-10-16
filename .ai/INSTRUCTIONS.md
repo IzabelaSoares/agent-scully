@@ -23,11 +23,12 @@ board; as Etapas 0 e 1 estão fechadas. Existe **um** coletor: o radar de prazo
 `.ai/politicas/prazo.yaml` e classifica sobre data injetável.
 
 ⚠️ **O radar ainda não falou com board nenhum.** O board do alvo nasce na
-Etapa 5; o caminho de rede está escrito e **não foi exercitado**. O que a suíte
-prova é a normalização e a classificação, sobre amostra versionada em
-`tests/fixtures/board/`. A conferência do número à mão é a task C3, e a
-retentativa com o estado de fonte caída é a C4 — até ela, falha de coleta sai
-como status ≠ 0, nunca como fila vazia. Qualquer afirmação de que algo "roda"
+Etapa 5; o JQL e os nomes de campo estão escritos e **não foram exercitados**.
+O que a suíte prova é a normalização e a classificação, sobre amostra
+versionada em `tests/fixtures/board/`, e — com dublê de `curl` — a retentativa
+e os dois estados de falha (task C4): fonte caída sai `indisponivel`, fonte sem
+credencial sai `nao_integrada`, e **nenhuma das duas vira fila vazia**. A
+conferência do número à mão é a task C3. Qualquer afirmação de que algo "roda"
 precisa de teste que a sustente.
 
 ## Sumário
