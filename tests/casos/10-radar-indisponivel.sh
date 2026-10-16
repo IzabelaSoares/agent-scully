@@ -78,7 +78,11 @@ rodar() {
     bash "$RADAR" 2>"$TMP/erro")"
   STATUS=$?
   ERRO="$(cat "$TMP/erro" 2>/dev/null)"
-  if [ -f "$TMP/contador" ]; then CHAMADAS="$(wc -l <"$TMP/contador")"; else CHAMADAS=0; fi
+  # Atribuída no começo da linha, e não depois de um `then`: é assim que o
+  # verificador do inventário reconhece variável de trabalho deste arquivo em
+  # vez de entrada de ambiente não documentada (TASKS B2).
+  CHAMADAS=0
+  [ -f "$TMP/contador" ] && CHAMADAS="$(wc -l <"$TMP/contador")"
 }
 
 campo() { printf '%s' "$SAIDA" | jq -r "$1"; }

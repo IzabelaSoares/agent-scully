@@ -434,6 +434,19 @@ como *herdada*.
   *(herdada)*. `?query=...` navega e **não aplica filtro nenhum** — falha
   silenciosa, o pior tipo. Conferir que o link gerado chega com o filtro
   aplicado, não só que ele abre.
+- **A suíte varre `git ls-files`: arquivo novo ainda não adicionado não é
+  verificado** — 16/10/2026. Os casos que varrem o repositório — sanitização,
+  verificação estática, inventário de credenciais, literal de campo de prazo —
+  partem de `git ls-files`, e isso é deliberado: é o que vai para o repositório
+  público que importa. O efeito colateral é que **arquivo novo ainda fora do
+  índice não é varrido por nenhum deles**, e a suíte passa verde na máquina de
+  quem o escreveu. O CI clona, então lá ele está rastreado — e o caso falha.
+  **Evidência:** o caso novo `tests/casos/10-radar-indisponivel.sh` passou
+  localmente com 262 asserções e derrubou o primeiro CI do PR #12
+  (`✗ ... lê CHAMADAS`): o inventário de credenciais só o enxergou depois do
+  `git add`. A defesa é barata e vale como hábito: **rodar `tests/run.sh`
+  depois do `git add`, nunca antes** — e desconfiar de suíte verde num commit
+  que estreia arquivo.
 - **`curl` sai 0 numa resposta 500, e o corpo de erro normaliza como fila
   vazia** — 16/10/2026. Sem `--write-out '%{http_code}'` o coletor só enxerga o
   status do próprio `curl`, que é **0**: a resposta 500 fica indistinguível de
